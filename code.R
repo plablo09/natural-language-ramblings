@@ -63,12 +63,15 @@ buildCloud <- function(d,nombre){
     d.corpus = tm_map(d.corpus, PlainTextDocument)
     if(lang == "english"){
         d.corpus = tm_map(d.corpus, removeWords, stopwords("english"))
+        d.corpus = tm_map(d.corpus, PlainTextDocument)
     }else {
         d.corpus = tm_map(d.corpus, removeWords, stopwords("spanish"))
+        d.corpus = tm_map(d.corpus, PlainTextDocument)
     }
     d.corpus = tm_map(d.corpus, removeWords, c("trump","donald",
                                                "realdonaldtrump","amp",
                                                "httptcolrziuoh6tk"))
+    d.corpus = tm_map(d.corpus, PlainTextDocument)
     f.name = paste(lang, "wordcloud", nombre, sep = "_")
     f.name = paste(f.name,"png", sep = ".")
     f.name = paste("images", f.name, sep = "/")
