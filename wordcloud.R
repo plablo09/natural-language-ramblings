@@ -1,3 +1,17 @@
+#!/usr/bin/env Rscript
+
+# Read command line args
+args = commandArgs(trailingOnly=TRUE)
+
+# if no command line args, use test database
+if(length(args)==0){
+    data_file <- 'data/tuits_sample.csv'
+} else{
+    data_file <- args[1]
+}
+
+print(data_file)
+
 local({r <- getOption("repos")
        r["CRAN"] <- "http://cran.r-project.org" 
        options(repos=r)
@@ -28,6 +42,7 @@ set.seed(12)
 #Hago mi cluster
 no_cores <- detectCores() -2
 cl <- makeCluster(no_cores)
+registerDoParallel(cl)
 # clusterEvalQ(cl, runif(10))
 clusterExport(cl,"textcat")
 clusterExport(cl,"detectLanguage")
@@ -48,7 +63,7 @@ clusterExport(cl,"VectorSource")
 #setwd('~Dropbox/data/trump/')
 print("Leyendo tuits")
 #tuits <- read.csv('/home/plablo/Dropbox/merida_ws/trump/trump_mex_2016-11-09T16_52_24_402Z.csv', stringsAsFactors = FALSE)
-tuits <- read.csv('data/tuits_sample.csv', stringsAsFactors = FALSE)
+tuits <- read.csv(data_file, stringsAsFactors = FALSE)
 
 # Formateo el timestamp
 print("Formateando fechas")
@@ -87,7 +102,6 @@ cortes.english <- sliceData(english, fechas)
 paleta <- brewer.pal(8,"Dark2")
 lang <- "english"
 clusterExport(cl,varlist = c("paleta","lang"))
-registerDoParallel(cl)
 print("Haciendo nubes en inglés")
 foo <- foreach(x = cortes.english, n = names(cortes.english), .combine = c) %dopar%{
     buildCloud(x, n)
