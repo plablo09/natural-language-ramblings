@@ -74,8 +74,7 @@ buildCloud <- function(d,nombre){
     f.name = paste("images", f.name, sep = "/")
     png(f.name, width=1280,height=800)
     wordcloud(d.corpus, max.words = 100, scale=c(6,.3), rot.per = .15,
-              colors = paleta, vfont=c("sans serif","plain"),
-              random.order = FALSE)
+              colors = paleta, random.order = FALSE)
     dev.off()
     }
     return(nrow(d))
