@@ -5,7 +5,7 @@ args = commandArgs(trailingOnly=TRUE)
 
 # if no command line args, use test database
 if(length(args)==0){
-    data_file <- 'data/tuits_sample.csv'
+    data_file <- "data/tuits_sample.csv"
 } else{
     data_file <- args[1]
 }
