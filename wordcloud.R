@@ -56,7 +56,7 @@ clusterExport(cl,"wordcloud")
 clusterExport(cl,"removeWords")
 clusterExport(cl,"png")
 clusterExport(cl,"VectorSource")
-
+clusterExport(cl,"stopwords")
 #clusterExport(cl,"buildCloud")
 
 # Leo archivo

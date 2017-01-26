@@ -55,30 +55,27 @@ sliceData <- function(data, fechas){
 buildCloud <- function(d,nombre){
     print(nombre)
     if(nrow(d) > 10){
-    d.corpus = Corpus(VectorSource(d$Texto))
-    d.corpus = tm_map(d.corpus, PlainTextDocument, lazy = TRUE)
-    d.corpus = tm_map(d.corpus, removePunctuation, lazy = TRUE)
-    #d.corpus = tm_map(d.corpus, PlainTextDocument)
-    d.corpus = tm_map(d.corpus, content_transformer(tolower), lazy = TRUE)
-    #d.corpus = tm_map(d.corpus, PlainTextDocument)
-    if(lang == "english"){
-        d.corpus = tm_map(d.corpus, removeWords, stopwords("english"), lazy = TRUE)
-        #d.corpus = tm_map(d.corpus, PlainTextDocument)
-    }else {
-        d.corpus = tm_map(d.corpus, removeWords, stopwords("spanish"), lazy = TRUE)
-        #d.corpus = tm_map(d.corpus, PlainTextDocument)
-    }
-    d.corpus = tm_map(d.corpus, removeWords, c("trump","donald",
-                                               "realdonaldtrump","amp",
-                                               "httptcolrziuoh6tk"), lazy = TRUE)
-    #d.corpus = tm_map(d.corpus, PlainTextDocument)
-    f.name = paste(lang, "wordcloud", nombre, sep = "_")
-    f.name = paste(f.name,"png", sep = ".")
-    f.name = paste("images", f.name, sep = "/")
-    png(f.name, width=1280,height=800)
-    wordcloud(d.corpus, max.words = 100, scale=c(12,1), rot.per = .15,
-              colors = paleta, random.order = FALSE)
-    dev.off()
+        myStopWords <- c("trump", "donald", "realdonaldtrump",
+                        "amp", "httptcolrziuoh6tk")
+        d.corpus <- Corpus(VectorSource(d$Texto))
+        d.corpus <- tm_map(d.corpus, content_transformer(tolower), mc.cores = 1)
+        if(lang == "english"){
+            d.corpus <- tm_map(d.corpus, removeWords,stopwords("english"),
+                              mc.cores = 1)
+        }else {
+            d.corpus <- tm_map(d.corpus, removeWords,stopwords("spanish"),
+                              mc.cores = 1)
+        }
+        d.corpus <- tm_map(d.corpus, removeWords, myStopWords, mc.cores = 1)
+        d.corpus <- tm_map(d.corpus, removePunctuation, mc.cores = 1)
+        d.corpus <- tm_map(d.corpus, PlainTextDocument, mc.cores = 1)
+        f.name <- paste(lang, "wordcloud", nombre, sep = "_")
+        f.name <- paste(f.name,"png", sep = ".")
+        f.name <- paste("images", f.name, sep = "/")
+        png(f.name, width=1280,height=800)
+        wordcloud(d.corpus, max.words = 100, scale=c(12,1), rot.per = .15,
+                  colors = paleta, random.order = FALSE)
+        dev.off()
     }
     return(nrow(d))
 }
