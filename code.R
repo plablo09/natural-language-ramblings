@@ -49,33 +49,42 @@ sliceData <- function(data, fechas){
     return(cortes)    
 }
 
+# The following functions are designed to run with %dopar%
+
+cleanCorpus <- function(d, nombre, language, myStopWords){
+    if(nrow(d) > 10){
+        d.corpus = Corpus(VectorSource(d$Texto))
+        d.corpus = tm_map(d.corpus, content_transformer(tolower), mc.cores = 1)
+        if(language == "english"){
+            d.corpus = tm_map(d.corpus, removeWords,stopwords("english"),
+                              mc.cores = 1)
+        }else {
+            d.corpus = tm_map(d.corpus, removeWords,stopwords("spanish"),
+                              mc.cores = 1)
+        }
+        d.corpus = tm_map(d.corpus, removeWords, myStopWords, mc.cores = 1)
+        d.corpus = tm_map(d.corpus, removePunctuation, mc.cores = 1)
+        d.corpus = tm_map(d.corpus, PlainTextDocument, mc.cores = 1)
+        return(d.corpus)
+    }
+     
+    
+}
 
 # Hace las nubes y las guarda en pngs. Recibe los datos (cortes temporales)
 # y la paleta
-buildCloud <- function(d,nombre){
+buildCloud <- function(d, nombre, lang){
     print(nombre)
-    if(nrow(d) > 10){
-        myStopWords <- c("trump", "donald", "realdonaldtrump",
-                        "amp", "httptcolrziuoh6tk")
-        d.corpus <- Corpus(VectorSource(d$Texto))
-        d.corpus <- tm_map(d.corpus, content_transformer(tolower), mc.cores = 1)
-        if(lang == "english"){
-            d.corpus <- tm_map(d.corpus, removeWords,stopwords("english"),
-                              mc.cores = 1)
-        }else {
-            d.corpus <- tm_map(d.corpus, removeWords,stopwords("spanish"),
-                              mc.cores = 1)
-        }
-        d.corpus <- tm_map(d.corpus, removeWords, myStopWords, mc.cores = 1)
-        d.corpus <- tm_map(d.corpus, removePunctuation, mc.cores = 1)
-        d.corpus <- tm_map(d.corpus, PlainTextDocument, mc.cores = 1)
+    if(is(d, "Corpus")){
         f.name <- paste(lang, "wordcloud", nombre, sep = "_")
         f.name <- paste(f.name,"png", sep = ".")
         f.name <- paste("images", f.name, sep = "/")
         png(f.name, width=1280,height=800)
-        wordcloud(d.corpus, max.words = 100, scale=c(12,1), rot.per = .15,
+        wordcloud(d, max.words = 100, scale=c(12,1), rot.per = .15,
                   colors = paleta, random.order = FALSE)
         dev.off()
-    }
-    return(nrow(d))
+        return(TRUE)
+    }else{
+        return(FALSE)
+    }    
 }

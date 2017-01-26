@@ -17,7 +17,8 @@ local({r <- getOption("repos")
        options(repos=r)
 })
 # Leer funciones del archivo
-funcs <- c("pkgTest","ftime","parseDetectLanguage","sliceData","buildCloud")
+funcs <- c("pkgTest","ftime","parseDetectLanguage","sliceData","buildCloud",
+           "cleanCorpus")
 for(f in funcs){
     if(!exists(f, mode="function")) source("code.R")
 }
@@ -98,19 +99,34 @@ fechas = c("2014-04-03","2015-06-16","2015-06-25","2015-06-30",
 cortes.spanish <- sliceData(spanish, fechas)
 cortes.english <- sliceData(english, fechas)
 
-# Creo las nubes de palabras
-paleta <- brewer.pal(8,"Dark2")
-lang <- "english"
-clusterExport(cl,varlist = c("paleta","lang"))
-print("Haciendo nubes en inglés")
-foo <- foreach(x = cortes.english, n = names(cortes.english), .combine = c) %dopar%{
-    buildCloud(x, n)
+
+print("Creando y limpiando corpus")
+
+corpus.english <- foreach(x = cortes.english, n = names(cortes.english)) %dopar%{
+    myStopWords <- c("trump", "donald", "realdonaldtrump",
+                 "amp", "httptcolrziuoh6tk")
+    cleanCorpus(x, n, "english", myStopWords)
 }
 
+names(corpus.english) <- names(cortes.english)
+
+corpus.spanish <- foreach(x = cortes.spanish, n = names(cortes.spanish)) %dopar%{
+    myStopWords <- c("trump", "donald", "realdonaldtrump",
+                 "amp", "httptcolrziuoh6tk")
+    cleanCorpus(x, n, "spanish", myStopWords)
+}
+
+names(corpus.spanish) <- names(cortes.spanish)
+
+print("Haciendo nubes de palabras")
+# Creo las nubes de palabras
 paleta <- brewer.pal(8,"Dark2")
-lang <- "spanish"
-clusterExport(cl,varlist = c("paleta","lang"))
-print("Haciendo nubes en español")
-foo <- foreach(x = cortes.spanish, n = names(cortes.spanish), .combine = c) %dopar%{
-    buildCloud(x, n)
+
+clusterExport(cl,varlist = c("paleta"))
+foo <- foreach(x = corpus.english, n = names(corpus.english)) %dopar%{
+    buildCloud(x, n, "english")
+}
+
+bar <- foreach(x = corpus.spanish, n = names(corpus.spanish)) %dopar%{
+    buildCloud(x, n, "spanish")
 }
