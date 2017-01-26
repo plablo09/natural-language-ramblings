@@ -56,27 +56,27 @@ buildCloud <- function(d,nombre){
     print(nombre)
     if(nrow(d) > 10){
     d.corpus = Corpus(VectorSource(d$Texto))
-    d.corpus = tm_map(d.corpus, PlainTextDocument)
-    d.corpus = tm_map(d.corpus, removePunctuation)
-    d.corpus = tm_map(d.corpus, PlainTextDocument)
-    d.corpus = tm_map(d.corpus, content_transformer(tolower))
-    d.corpus = tm_map(d.corpus, PlainTextDocument)
+    d.corpus = tm_map(d.corpus, PlainTextDocument, lazy = TRUE)
+    d.corpus = tm_map(d.corpus, removePunctuation, lazy = TRUE)
+    #d.corpus = tm_map(d.corpus, PlainTextDocument)
+    d.corpus = tm_map(d.corpus, content_transformer(tolower), lazy = TRUE)
+    #d.corpus = tm_map(d.corpus, PlainTextDocument)
     if(lang == "english"){
-        d.corpus = tm_map(d.corpus, removeWords, stopwords("english"))
-        d.corpus = tm_map(d.corpus, PlainTextDocument)
+        d.corpus = tm_map(d.corpus, removeWords, stopwords("english"), lazy = TRUE)
+        #d.corpus = tm_map(d.corpus, PlainTextDocument)
     }else {
-        d.corpus = tm_map(d.corpus, removeWords, stopwords("spanish"))
-        d.corpus = tm_map(d.corpus, PlainTextDocument)
+        d.corpus = tm_map(d.corpus, removeWords, stopwords("spanish"), lazy = TRUE)
+        #d.corpus = tm_map(d.corpus, PlainTextDocument)
     }
     d.corpus = tm_map(d.corpus, removeWords, c("trump","donald",
                                                "realdonaldtrump","amp",
-                                               "httptcolrziuoh6tk"))
-    d.corpus = tm_map(d.corpus, PlainTextDocument)
+                                               "httptcolrziuoh6tk"), lazy = TRUE)
+    #d.corpus = tm_map(d.corpus, PlainTextDocument)
     f.name = paste(lang, "wordcloud", nombre, sep = "_")
     f.name = paste(f.name,"png", sep = ".")
     f.name = paste("images", f.name, sep = "/")
     png(f.name, width=1280,height=800)
-    wordcloud(d.corpus, max.words = 100, scale=c(6,.3), rot.per = .15,
+    wordcloud(d.corpus, max.words = 100, scale=c(12,1), rot.per = .15,
               colors = paleta, random.order = FALSE)
     dev.off()
     }
