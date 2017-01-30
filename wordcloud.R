@@ -55,6 +55,7 @@ clusterExport(cl,"removePunctuation")
 clusterExport(cl,"content_transformer")
 clusterExport(cl,"wordcloud")
 clusterExport(cl,"removeWords")
+clusterExport(cl,"removeNumbers")
 clusterExport(cl,"png")
 clusterExport(cl,"VectorSource")
 clusterExport(cl,"stopwords")
@@ -104,7 +105,7 @@ print("Creando y limpiando corpus")
 
 corpus.english <- foreach(x = cortes.english, n = names(cortes.english)) %dopar%{
     myStopWords <- c("trump", "donald", "realdonaldtrump",
-                 "amp", "httptcolrziuoh6tk")
+                 "amp", "httptcolrziuoh6tk", "rt")
     cleanCorpus(x, n, "english", myStopWords)
 }
 
@@ -112,7 +113,7 @@ names(corpus.english) <- names(cortes.english)
 
 corpus.spanish <- foreach(x = cortes.spanish, n = names(cortes.spanish)) %dopar%{
     myStopWords <- c("trump", "donald", "realdonaldtrump",
-                 "amp", "httptcolrziuoh6tk")
+                 "amp", "httptcolrziuoh6tk", "rt")
     cleanCorpus(x, n, "spanish", myStopWords)
 }
 

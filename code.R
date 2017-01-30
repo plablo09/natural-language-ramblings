@@ -51,6 +51,8 @@ sliceData <- function(data, fechas){
 
 # The following functions are designed to run with %dopar%
 
+removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
+
 cleanCorpus <- function(d, nombre, language, myStopWords){
     if(nrow(d) > 10){
         d.corpus = Corpus(VectorSource(d$Texto))
@@ -64,6 +66,8 @@ cleanCorpus <- function(d, nombre, language, myStopWords){
         }
         d.corpus = tm_map(d.corpus, removeWords, myStopWords, mc.cores = 1)
         d.corpus = tm_map(d.corpus, removePunctuation, mc.cores = 1)
+        d.corpus = tm_map(d.corpus, removeNumbers, mc.cores = 1)
+        d.corpus = tm_map(d.corpus, content_transformer(removeURL), mc.cores = 1)
         d.corpus = tm_map(d.corpus, PlainTextDocument, mc.cores = 1)
         return(d.corpus)
     }
@@ -71,7 +75,7 @@ cleanCorpus <- function(d, nombre, language, myStopWords){
     
 }
 
-# Hace las nubes y las guarda en pngs. Recibe los datos (cortes temporales)
+# Hace las nubes y las guarda en pngs. Recibe los datos (corpus)
 # y la paleta
 buildCloud <- function(d, nombre, lang){
     print(nombre)
