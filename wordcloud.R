@@ -25,7 +25,7 @@ for(f in funcs){
 
 # Librerías requeridas:
 reqs <- c("dplyr","tm","SnowballC","wordcloud","textcat","parallel",
-          "RColorBrewer","foreach","doParallel")
+          "RColorBrewer","foreach","doParallel",)
 #Checo si están instaladas
 for (pkg in reqs){
     pkgTest(pkg)
