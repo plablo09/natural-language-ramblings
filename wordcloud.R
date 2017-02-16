@@ -108,7 +108,16 @@ cortes.english <- sliceData(english, fechas)
 
 print("Creando y limpiando corpus")
 
-corpus.english <- foreach(x = cortes.english, n = names(cortes.english)) %dopar%{
+corpus.english <- foreach(x = cortes.english) %dopar%{
+    if(nrow(x) > 10){
+        return(Corpus(VectorSource(x$Texto)))
+    }else{
+        return(NULL)
+    }
+}
+
+
+corpus.english <- foreach(x = corpus.english, n = names(cortes.english)) %dopar%{
     myStopWords <- c("trump", "donald", "realdonaldtrump",
                  "amp", "httptcolrziuoh6tk", "rt")
     cleanCorpus(x, n, "english", myStopWords)
@@ -116,7 +125,16 @@ corpus.english <- foreach(x = cortes.english, n = names(cortes.english)) %dopar%
 
 names(corpus.english) <- names(cortes.english)
 
-corpus.spanish <- foreach(x = cortes.spanish, n = names(cortes.spanish)) %dopar%{
+corpus.spanish <- foreach(x = cortes.spanish) %dopar%{
+    if(nrow(x) > 10){
+        return(Corpus(VectorSource(x$Texto)))
+    }else{
+        return(NULL)
+    }
+}
+
+
+corpus.spanish <- foreach(x = corpus.spanish, n = names(cortes.spanish)) %dopar%{
     myStopWords <- c("trump", "donald", "realdonaldtrump",
                  "amp", "httptcolrziuoh6tk", "rt")
     cleanCorpus(x, n, "spanish", myStopWords)

@@ -54,25 +54,24 @@ sliceData <- function(data, fechas){
 removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
 
 cleanCorpus <- function(d, nombre, language, myStopWords){
-    if(nrow(d) > 10){
-        d.corpus = Corpus(VectorSource(d$Texto))
-        d.corpus = tm_map(d.corpus, content_transformer(tolower), mc.cores = 1)
+    if(!is.null(d)){
+        d = tm_map(d, content_transformer(tolower), mc.cores = 1)
         if(language == "english"){
-            d.corpus = tm_map(d.corpus, removeWords,stopwords("english"),
+            d = tm_map(d, removeWords,stopwords("english"),
                               mc.cores = 1)
         }else {
-            d.corpus = tm_map(d.corpus, removeWords,stopwords("spanish"),
+            d = tm_map(d, removeWords,stopwords("spanish"),
                               mc.cores = 1)
         }
-        d.corpus = tm_map(d.corpus, removeWords, myStopWords, mc.cores = 1)
-        d.corpus = tm_map(d.corpus, removePunctuation, mc.cores = 1)
-        d.corpus = tm_map(d.corpus, removeNumbers, mc.cores = 1)
-        d.corpus = tm_map(d.corpus, content_transformer(removeURL), mc.cores = 1)
-        d.corpus = tm_map(d.corpus, PlainTextDocument, mc.cores = 1)
-        return(d.corpus)
+        d = tm_map(d, removeWords, myStopWords, mc.cores = 1)
+        d = tm_map(d, removePunctuation, mc.cores = 1)
+        d = tm_map(d, removeNumbers, mc.cores = 1)
+        d = tm_map(d, content_transformer(removeURL), mc.cores = 1)
+        d = tm_map(d, PlainTextDocument, mc.cores = 1)
+        return(d)
+    }else{
+        return(NULL)
     }
-     
-    
 }
 
 # Hace las nubes y las guarda en pngs. Recibe los datos (corpus)
