@@ -92,3 +92,33 @@ buildCloud <- function(d, nombre, lang){
         return(FALSE)
     }    
 }
+
+# Hace las TDMs para cada corte y las guarda en una lista
+buildTDM <- function(d){
+    if(is(d, "Corpus")){
+        tdm <- TermDocumentMatrix(d, control = list(wordLengths = c(3, Inf)))
+        return(tdm)
+        
+    }else{
+        return(NULL)
+    }
+}
+
+
+buildClusters <- function(d, nombre, lang){
+    if(!is.null(d)){
+        tdm <- removeSparseTerms(d, sparse = 0.95)
+        m <- as.matrix(tdm)
+        distMatrix <- dist(scale(m))
+        fit <- hclust(distMatrix, method = "ward.D")
+        f.name <- paste(lang, "clusters", nombre, sep = "_")
+        f.name <- paste(f.name,"png", sep = ".")
+        f.name <- paste("images", f.name, sep = "/")
+        png(f.name, width=1280,height=800)
+        plot(fit)
+        dev.off()
+        return(TRUE)
+    }else{
+        return(FALSE)
+    }
+}

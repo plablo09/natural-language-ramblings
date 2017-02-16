@@ -25,7 +25,7 @@ for(f in funcs){
 
 # Librerías requeridas:
 reqs <- c("dplyr","tm","SnowballC","wordcloud","textcat","parallel",
-          "RColorBrewer","foreach","doParallel",)
+          "RColorBrewer","foreach","doParallel","lda")
 #Checo si están instaladas
 for (pkg in reqs){
     pkgTest(pkg)
@@ -59,6 +59,10 @@ clusterExport(cl,"removeNumbers")
 clusterExport(cl,"png")
 clusterExport(cl,"VectorSource")
 clusterExport(cl,"stopwords")
+clusterExport(cl,"buildTDM")
+clusterExport(cl,"TermDocumentMatrix")
+clusterExport(cl,"buildClusters")
+clusterExport(cl,"hclust")
 #clusterExport(cl,"buildCloud")
 
 # Leo archivo
@@ -118,6 +122,17 @@ corpus.spanish <- foreach(x = cortes.spanish, n = names(cortes.spanish)) %dopar%
 }
 
 names(corpus.spanish) <- names(cortes.spanish)
+
+print("HAciendo Matrices de Términos")
+tdm.english <- foreach(x = corpus.english) %dopar%{
+    buildTDM(x)
+}
+names(tdm.english) <- names(cortes.english)
+
+print("Haciendo gráficas de clusters")
+foo <- foreach(x = tdm.english, n = names(tdm.english)) %dopar%{
+    buildClusters(x, n, "english")
+}
 
 print("Haciendo nubes de palabras")
 # Creo las nubes de palabras
