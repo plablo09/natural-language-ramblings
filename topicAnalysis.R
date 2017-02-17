@@ -160,3 +160,5 @@ k <- 10
 
 
 ldaOut <-LDA(dtm,k, method="Gibbs", control=list(nstart=nstart, seed = seed, best=best, burnin = burnin, iter = iter, thin=thin))
+json <- topicmodels_json_ldavis(ldaOut, corpus.english, dtm)
+serVis(json, out.dir = "vis", open.browser=FALSE)
