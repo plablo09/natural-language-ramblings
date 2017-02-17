@@ -53,7 +53,7 @@ sliceData <- function(data, fechas){
 
 removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
 
-cleanCorpus <- function(d, nombre, language, myStopWords){
+cleanCorpora <- function(d, nombre, language, myStopWords){
     if(!is.null(d)){
         d = tm_map(d, content_transformer(tolower), mc.cores = 1)
         if(language == "english"){
@@ -73,6 +73,25 @@ cleanCorpus <- function(d, nombre, language, myStopWords){
         return(NULL)
     }
 }
+
+cleanCorpus <- function(d, language, myStopWords){
+    d = tm_map(d, content_transformer(tolower))
+    if(language == "english"){
+        d = tm_map(d, removeWords,stopwords("english"),
+                          mc.cores = 1)
+    }else {
+        d = tm_map(d, removeWords,stopwords("spanish"),
+                          mc.cores = 1)
+    }
+    d = tm_map(d, removeWords, myStopWords)
+    d = tm_map(d, removePunctuation)
+    d = tm_map(d, removeNumbers)
+    d = tm_map(d, content_transformer(removeURL))
+    d = tm_map(d, PlainTextDocument)
+    return(d)
+}
+
+
 
 # Hace las nubes y las guarda en pngs. Recibe los datos (corpus)
 # y la paleta
@@ -120,4 +139,8 @@ buildClusters <- function(d, nombre, lang){
     }else{
         return(FALSE)
     }
+}
+
+mergeText <- function(d){
+    return(paste(unlist(d$Texto), collapse = " "))
 }

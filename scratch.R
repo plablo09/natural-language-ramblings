@@ -16,7 +16,9 @@ term.freq <- rowSums(as.matrix(top.100))
 df <- data.frame(term = names(term.freq), freq = term.freq)
 library(ggplot2)
 ggplot(df, aes(x=term, y=freq)) + geom_bar(stat = "identity") + xlab("Terms") + ylab("Count") +coord_flip()
-
-
-## Para hacer documentotes a partir de cada corte
-un.corte <- cortes.english[["2016-08-31"]]
+tdm2 <- removeSparseTerms(tdm, sparse = 0.95)
+m2 <- as.matrix(tdm2)
+distMatrix <- dist(scale(m2))
+fit <- hclust(distMatrix, method = "ward.D")
+plot(fit)
+rect.hclust(fit, k = 6)

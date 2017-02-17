@@ -7,7 +7,7 @@ local({r <- getOption("repos")
 })
 # Leer funciones del archivo
 funcs <- c("pkgTest","ftime","parseDetectLanguage","sliceData","buildCloud",
-           "cleanCorpus")
+           "cleanCorpus", "mergeText")
 for(f in funcs){
     if(!exists(f, mode="function")) source("code.R")
 }
@@ -89,13 +89,24 @@ fechas = c("2014-04-03","2015-06-16","2015-06-25","2015-06-30",
 cortes.spanish <- sliceData(spanish, fechas)
 cortes.english <- sliceData(english, fechas)
 
-mergeText <- function(d){
-    return(paste(unlist(d$Texto), collapse = " "))
-}
-
 ## Hago una lista de textos, uno para cada fecha, cada texto es la
 ## concatenación de todos los tuits para ese periodo
-unidos <- lapply(cortes.english, mergeText)
+byDate.english <- lapply(cortes.english, mergeText)
 
-names(unidos) <- names(cortes.english)
-corpus <- Corpus(VectorSource(unidos))
+names(byDate.english) <- names(cortes.english)
+
+corpus.english <- foreach(x = byDate.english) %dopar%{
+    if (nchar(x) > 0){
+        return(Corpus(VectorSource(x)))
+    }else{
+        return(NULL)
+    }
+    
+}
+
+
+## corpus.english <- Corpus(VectorSource(byDate.english))
+## myStopWords <- c("trump", "donald", "realdonaldtrump",
+##              "amp", "httptcolrziuoh6tk", "rt")
+
+## corpus.english <- cleanCorpus(corpus.english, "english", myStopWords)

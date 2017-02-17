@@ -120,7 +120,7 @@ corpus.english <- foreach(x = cortes.english) %dopar%{
 corpus.english <- foreach(x = corpus.english, n = names(cortes.english)) %dopar%{
     myStopWords <- c("trump", "donald", "realdonaldtrump",
                  "amp", "httptcolrziuoh6tk", "rt")
-    cleanCorpus(x, n, "english", myStopWords)
+    cleanCorpora(x, n, "english", myStopWords)
 }
 
 names(corpus.english) <- names(cortes.english)
@@ -137,7 +137,7 @@ corpus.spanish <- foreach(x = cortes.spanish) %dopar%{
 corpus.spanish <- foreach(x = corpus.spanish, n = names(cortes.spanish)) %dopar%{
     myStopWords <- c("trump", "donald", "realdonaldtrump",
                  "amp", "httptcolrziuoh6tk", "rt")
-    cleanCorpus(x, n, "spanish", myStopWords)
+    cleanCorpora(x, n, "spanish", myStopWords)
 }
 
 names(corpus.spanish) <- names(cortes.spanish)
