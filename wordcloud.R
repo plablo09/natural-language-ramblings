@@ -18,7 +18,7 @@ local({r <- getOption("repos")
 })
 # Leer funciones del archivo
 funcs <- c("pkgTest","ftime","parseDetectLanguage","sliceData","buildCloud",
-           "cleanCorpus")
+           "cleanCorpus","cleanCorpora")
 for(f in funcs){
     if(!exists(f, mode="function")) source("code.R")
 }

@@ -14,7 +14,7 @@ for(f in funcs){
 
 # Librerías requeridas:
 reqs <- c("dplyr","tm","SnowballC","wordcloud","textcat","parallel",
-          "RColorBrewer","foreach","doParallel","lda")
+          "RColorBrewer","foreach","doParallel","topicmodels","rlist", "LDAvis")
 #Checo si están instaladas
 for (pkg in reqs){
     pkgTest(pkg)
@@ -89,24 +89,74 @@ fechas = c("2014-04-03","2015-06-16","2015-06-25","2015-06-30",
 cortes.spanish <- sliceData(spanish, fechas)
 cortes.english <- sliceData(english, fechas)
 
-## Hago una lista de textos, uno para cada fecha, cada texto es la
-## concatenación de todos los tuits para ese periodo
-byDate.english <- lapply(cortes.english, mergeText)
+print("Creando y limpiando corpus")
 
-names(byDate.english) <- names(cortes.english)
-
-corpus.english <- foreach(x = byDate.english) %dopar%{
-    if (nchar(x) > 0){
-        return(Corpus(VectorSource(x)))
+corpus.english <- foreach(x = cortes.english) %dopar%{
+    if(nrow(x) > 10){
+        return(Corpus(VectorSource(x$Texto)))
     }else{
         return(NULL)
     }
-    
 }
 
 
-## corpus.english <- Corpus(VectorSource(byDate.english))
-## myStopWords <- c("trump", "donald", "realdonaldtrump",
-##              "amp", "httptcolrziuoh6tk", "rt")
+corpus.english <- foreach(x = corpus.english, n = names(cortes.english)) %dopar%{
+    myStopWords <- c("trump", "donald", "realdonaldtrump",
+                 "amp", "httptcolrziuoh6tk", "rt")
+    cleanCorpora(x, n, "english", myStopWords)
+}
 
-## corpus.english <- cleanCorpus(corpus.english, "english", myStopWords)
+names(corpus.english) <- names(cortes.english)
+
+#Quitamos los elementos nulos:
+corpus.english <- list.clean(corpus.english, fun = is.null, recursive=FALSE)
+#guardo los nombres para usarlos después:
+names.english <- names(corpus.english)
+
+corpus.spanish <- foreach(x = cortes.spanish) %dopar%{
+    if(nrow(x) > 10){
+        return(Corpus(VectorSource(x$Texto)))
+    }else{
+        return(NULL)
+    }
+}
+
+
+corpus.spanish <- foreach(x = corpus.spanish, n = names(cortes.spanish)) %dopar%{
+    myStopWords <- c("trump", "donald", "realdonaldtrump",
+                 "amp", "httptcolrziuoh6tk", "rt")
+    cleanCorpora(x, n, "spanish", myStopWords)
+}
+
+names(corpus.spanish) <- names(cortes.spanish)
+
+## Ya con los tuits limpios, vamos a crear un sólo corpus para cada corte temporal
+
+## Una lista con todo el texto da cada corpus unido en un solo character
+merged.english = list()
+for (name in names(corpus.english)){
+    l <- lapply(corpus.english[[name]], as.character)
+    merged.english[[name]] = paste(l, collapse = " ")
+}
+
+## Reescribo el corpus
+corpus.english <- Corpus(VectorSource(merged.english))
+
+## Calculo la DTM (y ya en eso le pongo nombres a los documentos)
+dtm <- DocumentTermMatrix(corpus.english)
+rownames(dtm) <- names.english
+
+## Ahora sí podemos correr el modelo
+
+#Set parameters for Gibbs sampling
+burnin <- 4000
+iter <- 2000
+thin <- 500
+seed <-list(2003,5,63,100001,765)
+nstart <- 5
+best <- TRUE
+
+k <- 10
+
+
+ldaOut <-LDA(dtm,k, method="Gibbs", control=list(nstart=nstart, seed = seed, best=best, burnin = burnin, iter = iter, thin=thin))
