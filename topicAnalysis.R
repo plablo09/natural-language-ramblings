@@ -48,6 +48,7 @@ clusterExport(cl,"TermDocumentMatrix")
 clusterExport(cl,"buildClusters")
 clusterExport(cl,"hclust")
 clusterExport(cl,"removeSparseTerms")
+clusterExport(cl,"stripWhitespace")
 #clusterExport(cl,"buildCloud")
 
 # Leo archivo
