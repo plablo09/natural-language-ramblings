@@ -67,7 +67,7 @@ cleanCorpora <- function(d, nombre, language, myStopWords){
         d = tm_map(d, removePunctuation, mc.cores = 1)
         d = tm_map(d, removeNumbers, mc.cores = 1)
         d = tm_map(d, content_transformer(removeURL), mc.cores = 1)
-        d = tm_map(docs, stripWhitespace, mc.cores = 1)
+        d = tm_map(d, stripWhitespace, mc.cores = 1)
         d = tm_map(d, PlainTextDocument, mc.cores = 1)
         return(d)
     }else{
